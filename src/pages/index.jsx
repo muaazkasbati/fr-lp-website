@@ -1,6 +1,8 @@
+import { countriesList } from '@/utills/helper';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
 import Head from 'next/head';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Home() {
   const slides = [
@@ -75,27 +77,59 @@ export default function Home() {
     },
   ];
   const faqs = [
-  {
-    question: "Qu'est-ce que BitGPT exactement ?",
-    answer: "BitGPT associe l’informatique quantique à l’intelligence artificielle. Il est conçu pour une analyse en temps réel et permettant des décisions plus intelligentes et plus rapides."
-  },
-  {
-    question: "Puis-je faire confiance à BitGPT ?",
-    answer: "BitGPT a fait l’objet de tests approfondis et a démontré une réussite constante dans diverses conditions. Comme pour tout outil, il existe des risques et les utilisateurs doivent donc faire preuve de prudence."
-  },
-  {
-    question: "Quel est le coût de l'utilisation de BitGPT?",
-    answer: "L’application BitGPT est totalement gratuite pour l’ouverture d’un compte, mais pour utiliser l’essentiel de nos fonctions d’automatisation, nos algorithmes nécessitent un petit budget."
-  },
-  {
-    question: "Comment fonctionne BitGPT ?",
-    answer: "En s’appuyant sur des algorithmes sophistiqués, BitGPT analyse les tendances, les nouvelles et les sentiments des médias sociaux. Sur la base de ces informations, il fournit des recommandations et travaille automatiquement sur votre compte."
-  },
-  {
-    question: "Comment commencer à utiliser BitGPT ?",
-    answer: "Pour commencer, rien de plus simple : il suffit de créer un compte et nous vous aiderons à faire le reste."
-  }
-];
+    {
+      question: "Qu'est-ce que BitGPT exactement ?",
+      answer: "BitGPT associe l’informatique quantique à l’intelligence artificielle. Il est conçu pour une analyse en temps réel et permettant des décisions plus intelligentes et plus rapides."
+    },
+    {
+      question: "Puis-je faire confiance à BitGPT ?",
+      answer: "BitGPT a fait l’objet de tests approfondis et a démontré une réussite constante dans diverses conditions. Comme pour tout outil, il existe des risques et les utilisateurs doivent donc faire preuve de prudence."
+    },
+    {
+      question: "Quel est le coût de l'utilisation de BitGPT?",
+      answer: "L’application BitGPT est totalement gratuite pour l’ouverture d’un compte, mais pour utiliser l’essentiel de nos fonctions d’automatisation, nos algorithmes nécessitent un petit budget."
+    },
+    {
+      question: "Comment fonctionne BitGPT ?",
+      answer: "En s’appuyant sur des algorithmes sophistiqués, BitGPT analyse les tendances, les nouvelles et les sentiments des médias sociaux. Sur la base de ces informations, il fournit des recommandations et travaille automatiquement sur votre compte."
+    },
+    {
+      question: "Comment commencer à utiliser BitGPT ?",
+      answer: "Pour commencer, rien de plus simple : il suffit de créer un compte et nous vous aiderons à faire le reste."
+    }
+  ];
+
+  const getFlagEmoji = (countryCode) => {
+    if (!countryCode.match(/^[A-Z]{2}$/)) return '';
+    const codePoints = countryCode
+      .toUpperCase()
+      .split('')
+      .map(char => 127397 + char.charCodeAt());
+    return String.fromCodePoint(...codePoints);
+  };
+
+  const [selectedCountry, setSelectedCountry] = useState(countriesList[0]);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleCountrySelect = (country) => {
+    setSelectedCountry(country);
+    setIsOpen(false);
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -160,11 +194,62 @@ export default function Home() {
                       placeholder="Adresse électronique"
                       className="w-full px-3 py-3 border rounded border-[#9ca3af] text-sm"
                     />
+                    {/*                     
                     <input
                       type="tel"
                       placeholder="+92 300 1234567"
                       className="w-full px-3 py-3 border rounded border-[#9ca3af] text-sm"
-                    />
+                    /> */}
+                    <div className="w-full flex relative" ref={dropdownRef}>
+                      <button
+                        type="button"
+                        onClick={toggleDropdown}
+                        className="px-3 py-3.5 border rounded-l border-[#9ca3af] border-r-0 text-sm bg-white text-left flex items-center cursor-pointer"
+                        style={{ fontFamily: '"Poppins", "Noto Color Emoji", sans-serif' }}
+                      >
+                        <span className="flag-emoji inline-block align-middle mr-2" style={{ fontFamily: '"Noto Color Emoji", sans-serif' }}>
+                          {getFlagEmoji(selectedCountry.code)}
+                        </span>
+                        {/* <span className="ml-2">{selectedCountry.native} (+{selectedCountry.phone})</span> */}
+                        <svg
+                          className="ml-auto h-3 w-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d={isOpen ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'}
+                          />
+                        </svg>
+                      </button>
+                      <input
+                        type="tel"
+                        placeholder="+92 300 1234567"
+                        className="grow pr-3 ps-1 py-3 border rounded-r border-[#9ca3af] text-sm focus:outline-none border-l-0"
+                        style={{ fontFamily: '"Poppins", "Noto Color Emoji", sans-serif' }}
+                      />
+                      {isOpen && (
+                        <ul className="absolute top-10 z-10 w-full bg-white border border-[#9ca3af] rounded-b shadow-lg max-h-60 overflow-y-auto">
+                          {countriesList.map(country => (
+                            <li
+                              key={country.code}
+                              onClick={() => handleCountrySelect(country)}
+                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center"
+                              style={{ fontFamily: '"Poppins", "Noto Color Emoji", sans-serif' }}
+                            >
+                              <span className="flag-emoji inline-block align-middle" style={{ fontFamily: '"Noto Color Emoji", sans-serif' }}>
+                                {getFlagEmoji(country.code)}
+                              </span>
+                              <span className="ml-2">{country.name} ({country.native}) +{country.phone}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
                     <button
                       type="submit"
                       className="w-full bg-[#3b82f6] text-white p-4 text-sm rounded-lg hover:bg-blue-800"

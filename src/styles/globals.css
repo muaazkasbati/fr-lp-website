@@ -12,6 +12,18 @@
   --font-mono: var(--font-geist-mono);
 }
 
-body {
+/* body {
   font-family: "Poppins", sans-serif;
+} */
+
+body {
+  font-family: "Poppins", "Noto Color Emoji", sans-serif;
+}
+
+/* Ensure flag emojis render correctly */
+.flag-emoji {
+  font-family: "Noto Color Emoji", sans-serif;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
 }
